@@ -43,25 +43,12 @@ CacheGif::~CacheGif()
 	}
 }
 
-bool CacheGif::init(const char* fileName)
-{
-	FILE* f = GifUtils::openFile(fileName);
-	return init(f,fileName);
-}
-
 /*
  The FILE* will be closed after the function
  */
-bool CacheGif::init(FILE* f,const char* fileName)
-{
-	m_gif_fullpath = fileName;
-	if(GifUtils::isGifFile(f) == false)
-	{
-		if(f) fclose(f);
-		return false;
-	}
-    
-	GIFMovie* movie = GIFMovie::create(f);
+bool CacheGif::init(const char* fileName)
+{    
+	GIFMovie* movie = GIFMovie::create(fileName);
 	bool res = false;
 	do
 	{
