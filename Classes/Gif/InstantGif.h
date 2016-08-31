@@ -13,9 +13,6 @@ class InstantGif : public GifBase
 public:
 	CREATE_CCOBJ_WITH_PARAM(InstantGif,const char*);
 	virtual bool init(const char*);
-
-	CREATE_CCOBJ_WITH_PARAMS(InstantGif, FILE*, const char*);
-	virtual bool init(FILE*,const char*);
 	InstantGif();
 	~InstantGif();
 	virtual void updateGif(uint32_t delta);
