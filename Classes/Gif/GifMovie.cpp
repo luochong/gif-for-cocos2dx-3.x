@@ -1,5 +1,6 @@
-#include "cocos2d.h"
 #include "GIFMovie.h"
+#include "CCFileUtils.h"
+using namespace cocos2d;
 
 static void packARGB32(Rgba* pixel, GifByteType alpha, GifByteType red,
 	GifByteType green, GifByteType blue)
@@ -12,8 +13,8 @@ static void packARGB32(Rgba* pixel, GifByteType alpha, GifByteType red,
 
 static int DecodeCallBackProc(GifFileType* gif, GifByteType* bytes, int size)
 {
-	FILE* file = (FILE*) gif->UserData;
-	return fread(bytes, 1, size, file);
+	DataBuff* data = (DataBuff*) gif->UserData;	
+	return data->readData(bytes, size);
 }
 
 static void getColorFromTable(int idx, Rgba* dst, const ColorMapObject* cmap)
@@ -21,6 +22,28 @@ static void getColorFromTable(int idx, Rgba* dst, const ColorMapObject* cmap)
 	char colIdx = idx >= cmap->ColorCount ? 0 : idx;
 	GifColorType* col = &cmap->Colors[colIdx];
 	packARGB32(dst, 0xFF, col->Red, col->Green, col->Blue);
+}
+
+DataBuff::DataBuff(cocos2d::Data data)
+{
+	this->data = data;
+	this->pos = 0;
+}
+
+DataBuff::~DataBuff(){}
+
+size_t DataBuff::readData(void *buffer, size_t size) {	
+	size_t realSize = size;
+	if (data.getSize() < (pos + size))
+	{
+		realSize = data.getSize() - pos;
+	}
+	if (realSize > 0)
+	{
+		memcpy(buffer, data.getBytes() + pos, realSize);
+		pos += realSize;
+	}   
+	return realSize;
 }
 
 GIFMovie::GIFMovie()
@@ -31,31 +54,25 @@ GIFMovie::GIFMovie()
 
 bool GIFMovie::init(const char* fileName)
 {
-	FILE* file = GifUtils::openFile(fileName);
-	return init(file);
-}
-
-bool GIFMovie::init(FILE* file)
-{
-	if(file == NULL)
+	std::string filePath = FileUtils::getInstance()->fullPathForFilename(fileName);
+	Data data = FileUtils::getInstance()->getDataFromFile(filePath);	
+	if (data.isNull())
 	{
 		return false;
 	}
-
+	DataBuff dataBuff(data);
 	int error = 0;
-	fGIF = DGifOpen(file,&DecodeCallBackProc,&error);
+	fGIF = DGifOpen(&dataBuff, &DecodeCallBackProc, &error);
 
 	if (NULL == fGIF || DGifSlurp(fGIF) != GIF_OK)
-	{
-		GifUtils::closeFile(file);
+	{		
 		DGifCloseFile(fGIF);
 		fGIF = NULL;
 		return false;
-	}
-
-	GifUtils::closeFile(file);
+	}	
 	return true;
 }
+
 
 GIFMovie::~GIFMovie()
 {
