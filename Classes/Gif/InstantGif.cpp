@@ -3,32 +3,19 @@
 static uint32_t InstantGifId = 0;
 
 bool InstantGif::init(const char* fileName)
-{
-	FILE* f = GifUtils::openFile(fileName);
-	return init(f,fileName);
-}
-
-bool InstantGif::init(FILE* f,const char* fileName)
-{
-	m_gif_fullpath = fileName;
-	if(GifUtils::isGifFile(f) == false)
-	{
-        GifUtils::closeFile(f);
-		return false;
-	}
-
-	m_movie = GIFMovie::create(f);
-	if(m_movie == NULL || m_movie->getGifCount() <= 0)
+{	
+	m_movie = GIFMovie::create(fileName);
+	if (m_movie == NULL || m_movie->getGifCount() <= 0)
 	{
 		return false;
 	}
 
-	if(m_movie->getGifCount()>1)
+	if (m_movie->getGifCount()>1)
 	{
 		scheduleUpdate();
 	}
 	m_movie->setTime(0);
-	cocos2d::Texture2D* texture = createTexture(m_movie->bitmap(),0,false);
+	cocos2d::Texture2D* texture = createTexture(m_movie->bitmap(), 0, false);
 
 	return initWithTexture(texture);
 }
