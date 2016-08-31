@@ -56,9 +56,7 @@ class CacheGif : public GifBase
 public:
 	CREATE_CCOBJ_WITH_PARAM(CacheGif,const char*);
 	virtual bool init(const char*);
-
-	CREATE_CCOBJ_WITH_PARAMS(CacheGif, FILE*, const char*);
-	virtual bool init(FILE*,const char*);
+	
 	CacheGif();
 	~CacheGif();
 	virtual void updateGif(uint32_t delta);
