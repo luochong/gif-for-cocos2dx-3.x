@@ -6,16 +6,27 @@
 #include <cstdlib>
 #include <string.h>
 #include <assert.h>
-#include "GifUtils.h"
+#include "cocos2d.h"
+
+class DataBuff
+{
+	public: 
+		DataBuff(cocos2d::Data data);
+		virtual ~DataBuff();
+		size_t readData(void *buffer, size_t size);
+	private:
+		size_t pos;
+		cocos2d::Data data;
+
+};
 
 class GIFMovie : public Movie {
 public:
 	virtual ~GIFMovie();
 	GIFMovie();
 	CREATE_WITH_PARAM(GIFMovie, const char*);
+
     virtual bool init(const char*);
-	CREATE_WITH_PARAM(GIFMovie, FILE*);
-	virtual bool init(FILE*);
 
 	int getGifCount()
 	{
